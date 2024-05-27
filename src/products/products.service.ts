@@ -2,20 +2,20 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  OnModuleInit,
-} from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { PrismaClient } from '@prisma/client';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+  OnModuleInit
+} from "@nestjs/common";
+import { CreateProductDto } from "./dto/create-product.dto";
+import { UpdateProductDto } from "./dto/update-product.dto";
+import { PrismaClient } from "@prisma/client";
+import { PaginationDto } from "src/common/dto/pagination.dto";
 
 @Injectable()
 export class ProductsService extends PrismaClient implements OnModuleInit {
-  private readonly logger = new Logger('ProductsService');
+  private readonly logger = new Logger("ProductsService");
 
   async onModuleInit() {
     await this.$connect();
-    this.logger.log('Database connected');
+    this.logger.log("Database connected");
   }
 
   create(createProductDto: CreateProductDto) {
@@ -29,24 +29,24 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
     const lastPage = Math.ceil(totalRows / limit);
 
     if (page > lastPage) {
-      throw new NotFoundException('Page not found');
+      throw new NotFoundException("Page not found");
     }
 
     const data = await this.product.findMany({
       take: limit,
       skip: (page - 1) * limit,
       where: {
-        available: true,
-      },
+        available: true
+      }
     });
 
     return {
       metadata: {
         page,
         total: totalRows,
-        lastPage,
+        lastPage
       },
-      data,
+      data
     };
   }
 
@@ -54,8 +54,8 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
     const product = await this.product.findFirst({
       where: {
         id,
-        available: true,
-      },
+        available: true
+      }
     });
 
     if (!product) {
@@ -72,7 +72,7 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
 
     return this.product.update({
       where: { id },
-      data: data,
+      data: data
     });
   }
 
@@ -80,7 +80,7 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
     await this.findOne(id);
     const product = await this.product.update({
       where: { id },
-      data: { available: false },
+      data: { available: false }
     });
 
     return product;
